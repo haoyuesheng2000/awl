@@ -1,0 +1,80 @@
+SUBROUTINE_BLOCK A4_MC:SBR32
+TITLE=子程序注释
+BEGIN
+Network 1 
+// 布袋气扫
+LD     SM0.0
+=      L60.0
+LD     V3.0
+=      L63.7
+LD     V3.1
+=      L63.6
+LD     T36
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1024, 0.1, &VB1100, V11.0, V11.1, V11.2, V11.3, V11.4, V11.5, V11.6, V11.7
+Network 2 
+LD     SM0.0
+LPS
+AN     T35
+TON    T35, 1
+LPP
+MOVB   4, VB1110
+Network 3 
+// //布袋振打
+LD     SM0.0
+=      L60.0
+LD     V3.2
+=      L63.7
+LD     V3.3
+=      L63.6
+LD     T36
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1028, 0.1, &VB1200, V12.0, V12.1, V12.2, V12.3, V12.4, V12.5, V12.6, V12.7
+Network 4 
+LD     SM0.0
+LPS
+AN     T36
+TON    T36, 1
+LPP
+MOVB   4, VB1210
+Network 5 
+// //通针间隔
+LD     SM0.0
+=      L60.0
+LD     V3.4
+=      L63.7
+LD     V3.5
+=      L63.6
+LD     T37
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1036, 0.2, &VB1300, V13.0, V13.1, V13.2, V13.3, V13.4, V13.5, V13.6, V13.7
+Network 6 
+LD     SM0.0
+LPS
+AN     T37
+TON    T37, 1
+LPP
+MOVB   4, VB1310
+Network 7 
+// //主塔振打
+LD     SM0.0
+=      L60.0
+LD     V3.6
+=      L63.7
+LD     V3.7
+=      L63.6
+LD     T38
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1032, 0.2, &VB1400, V14.0, V14.1, V14.2, V14.3, V14.4, V14.5, V14.6, V14.7
+Network 8 
+LD     SM0.0
+LPS
+AN     T38
+TON    T38, 1
+LPP
+MOVB   4, VB1410
+END_SUBROUTINE_BLOCK

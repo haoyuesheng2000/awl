@@ -1,0 +1,41 @@
+SUBROUTINE_BLOCK A7_V_BLOCK:SBR56
+TITLE=
+VAR_INPUT
+阀状态:BOOL;
+阀开信号:BOOL;
+阀关信号:BOOL;
+计时脉冲:BOOL;
+开报警计时:INT;
+关报警计时:INT;
+END_VAR
+VAR_OUTPUT
+阀开报警:BOOL;
+阀关报警:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// 程序段注释
+LD     L0.0
+AN     L0.1
+LPS
+A      L0.3
++I     1, LW1
+LRD
+NOT
+MOVW   0, LW1
+LPP
+AW>=   LW1, 10
+=      L5.0
+Network 2 
+LDN    L0.0
+AN     L0.2
+LPS
+A      L0.3
++I     1, LW3
+LRD
+NOT
+MOVW   0, LW3
+LPP
+AW>=   LW3, 10
+=      L5.1
+END_SUBROUTINE_BLOCK

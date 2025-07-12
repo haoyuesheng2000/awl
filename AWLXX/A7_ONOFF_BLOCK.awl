@@ -1,0 +1,25 @@
+SUBROUTINE_BLOCK A7_ONOFF_BLOCK:SBR51
+TITLE=
+VAR_INPUT
+Start_Btn:BOOL;
+Stop_Btn:BOOL;
+END_VAR
+VAR_IN_OUT
+M:BOOL;
+END_VAR
+VAR_OUTPUT
+Motor_Coil:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// ³ÌÐò¶Î×¢ÊÍ
+LD     L0.0
+O      L0.2
+AN     L0.1
+=      L0.2
+Network 2 
+LD     L0.2
+=      L0.3
+Network 3 
+// ³ÌÐò¶Î×¢ÊÍ
+END_SUBROUTINE_BLOCK

@@ -1,0 +1,42 @@
+SUBROUTINE_BLOCK 输入量转换:SBR14
+TITLE=
+BEGIN
+Network 1 
+// 循环风机反馈
+LD     SM0.0
+CALL   SBR22, AIW32, +27648, 0, 50.0, 0.0, VD3008
+Network 2 
+// 主塔压力
+LD     SM0.0
+CALL   SBR22, AIW36, +27648, 5530, 10000.0, -10000.0, VD3100
+Network 3 
+// 管道压力
+LD     SM0.0
+CALL   SBR22, AIW34, +27648, 5530, 10000.0, -10000.0, VD3112
+Network 4 
+// 氧含仪
+LD     SM0.0
+CALL   SBR22, AIW48, +27648, 5530, 25.0, 0.0, VD3116
+Network 5 
+// 微氧仪
+LD     SM0.0
+CALL   SBR22, AIW38, +27648, 5530, 1000.0, 0.0, VD3136
+Network 6 
+// 进氮压力
+LD     SM0.0
+CALL   SBR22, AIW50, +27648, 5530, 5.0, 0.0, VD3132
+Network 7 
+// 分界线
+Network 8 
+// 循环风机频率
+LD     SM0.0
+CALL   SBR24, VD2004, 50.0, 0.0, 27648, 0, AQW48
+AR<    VD2004, 25.0
+MOVR   25.0, VD2004
+Network 9 
+// 比例调节阀
+LD     SM0.0
+CALL   SBR24, VD2028, 100.0, 0.0, 27648, 0, AQW50
+Network 10 
+// 引风机频率
+END_SUBROUTINE_BLOCK

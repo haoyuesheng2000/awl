@@ -1,0 +1,164 @@
+SUBROUTINE_BLOCK A4_MC_BLOCK:SBR39
+TITLE=
+VAR_INPUT
+开始正序输出:BOOL;
+开始逆序输出:BOOL;
+Clock_1s:BOOL;
+间隔时间:REAL;
+保持时间:REAL;
+缓存区:DWORD;
+END_VAR
+VAR_OUTPUT
+OUT1:BOOL;
+OUT2:BOOL;
+OUT3:BOOL;
+OUT4:BOOL;
+OUT5:BOOL;
+OUT6:BOOL;
+OUT7:BOOL;
+OUT8:BOOL;
+END_VAR
+VAR
+控制字:BYTE;
+指针:DWORD;
+tm_保持时间到:BOOL;
+tm_间隔时间到:BOOL;
+输出数量:BYTE;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVB   *LD9, LB14
+MOVD   LD9, LD15
+AENO
++D     +10, LD15
+AENO
+MOVB   *LD15, LB20
+Network 2 
+// \\启动
+LD     L0.0
+AN     L0.1
+LD     L0.1
+AN     L0.0
+OLD
+=      L14.0
+Network 3 
+// \\初始化-----重置序列--复位计时
+LD     L14.0
+LPS
+AN     L14.1
+LPS
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+=      L14.1
+Network 4 
+// \\保持计时
+LD     L14.0
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+LPS
+A      L0.2
+LPS
+AN     L14.2
++R     0.01, *LD15
+LPP
+=      L14.2
+LPP
+AR>=   *LD15, LD5
+=      L19.0
+Network 5 
+// \\间隔计时
+LD     L19.0
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+LPS
+A      L0.2
+LPS
+AN     L14.3
++R     0.01, *LD15
+LPP
+=      L14.3
+LPP
+AR>=   *LD15, LD1
+=      L19.1
+Network 6 
+// \\正序
+LD     L19.1
+LPS
+AN     L14.4
+A      L0.0
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+INCB   *LD15
+AB>    *LD15, LB20
+MOVB   0, *LD15
+LPP
+=      L14.4
+Network 7 
+// \\逆序
+LD     L19.1
+LPS
+AN     L14.5
+A      L0.1
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+LPS
+AB=    *LD15, 0
+MOVB   LB20, *LD15
+LPP
+AB>    *LD15, 0
+DECB   *LD15
+LPP
+=      L14.5
+Network 8 
+// \\复位保持计时
+// \\复位间隔计时
+LD     L19.1
+LPS
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+MOVR   0.0, *LD15
+Network 9 
+// \\输出结果
+
+
+LD     L14.0
+AN     L19.0
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+MOVB   1, LB13
+SLB    LB13, *LD15
+NOT
+MOVB   0, LB13
+Network 10 
+LD     SM0.0
+MOVB   LB14, *LD9
+END_SUBROUTINE_BLOCK

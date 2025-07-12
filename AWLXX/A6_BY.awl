@@ -1,0 +1,28 @@
+SUBROUTINE_BLOCK A6_BY:SBR42
+TITLE=×Ó³ÌÐò×¢ÊÍ
+BEGIN
+Network 1 
+LD     SM0.0
+=      L60.0
+LD     V350.0
+=      L63.7
+LD     L60.0
+CALL   SBR43, L63.7, VD3100, VD304, VD308, VD312, VW316, VW320, VW324, &VB360, VB330, V340.0, V340.1, V340.2, V340.3, V340.4, V340.5
+Network 2 
+LD     SM0.0
+AB=    VB360, 1
+EU
+S      M4.7, 1
+R      M4.6, 1
+R      M4.4, 1
+R      M4.5, 1
+Network 3 
+LD     SM0.0
+AB=    VB360, 3
+EU
+R      M5.1, 1
+R      M4.6, 1
+R      M4.7, 1
+R      M4.4, 1
+R      M4.5, 1
+END_SUBROUTINE_BLOCK

@@ -1,0 +1,90 @@
+SUBROUTINE_BLOCK A7_OTHER:SBR50
+TITLE=子程序注释
+BEGIN
+Network 1 
+// //保压阀反馈报警
+LD     SM0.0
+=      L60.0
+LD     Q0.6
+=      L63.7
+LD     I0.1
+=      L63.6
+LD     I0.2
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V1.5, V1.6
+Network 2 
+// 雾化阀报警反馈
+LD     SM0.0
+=      L60.0
+LD     Q0.7
+=      L63.7
+LD     I0.3
+=      L63.6
+LD     I0.4
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V1.7, V2.0
+Network 3 
+// 比例阀反馈报警
+LD     SM0.0
+=      L60.0
+LD     M5.2
+=      L63.7
+LD     I0.5
+=      L63.6
+LD     I0.6
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V2.3, V2.4
+Network 4 
+// 进氮阀报警反馈
+LD     SM0.0
+=      L60.0
+LD     Q8.0
+=      L63.7
+LD     I0.7
+=      L63.6
+LD     I1.0
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V2.1, V2.2
+Network 5 
+Network 6 
+LD     SM0.0
+=      L60.0
+LD     Q0.1
+=      L63.7
+LD     T37
+=      L63.6
+LD     L60.0
+CALL   SBR57, L63.7, L63.6, V20.0
+Network 7 
+LD     SM0.0
+=      L60.0
+LD     Q0.2
+=      L63.7
+LD     T50
+=      L63.6
+LD     L60.0
+CALL   SBR57, L63.7, L63.6, V20.1
+Network 8 
+LDN    T51
+TON    T50, 1
+Network 9 
+LD     T50
+TON    T51, 1
+Network 10 
+END_SUBROUTINE_BLOCK

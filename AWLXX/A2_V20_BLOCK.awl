@@ -1,0 +1,215 @@
+SUBROUTINE_BLOCK A2_V20_BLOCK:SBR28
+TITLE=
+VAR_INPUT
+触发:BOOL;
+停止:BOOL;
+启动:BOOL;
+复位:BOOL;
+站号:BYTE;
+频率设定:REAL;
+指针:DWORD;
+END_VAR
+VAR_IN_OUT
+Indx:INT;
+END_VAR
+VAR_OUTPUT
+结束:BOOL;
+当前频率:REAL;
+当前电流:REAL;
+当前能耗:REAL;
+当前电压:REAL;
+END_VAR
+VAR
+指针2:DWORD;
+指针3:DWORD;
+指针4:DWORD;
+控制字:WORD;
+频率:WORD;
+tm_int:INT;
+tm_Real:REAL;
+tm_Dint:DINT;
+tm_Error1:BYTE;
+tm_Error2:BYTE;
+tm_Error3:BYTE;
+tm_Error4:BYTE;
+Done_1:BOOL;
+Done_2:BOOL;
+Done_3:BOOL;
+Done_4:BOOL;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVB   0, LB59
+AENO
+MOVD   LD6, LD33
+AENO
++D     +6, LD33
+AENO
+MOVD   LD6, LD37
++D     +22, LD37
+Network 2 
+LD     L0.0
+MOVW   1, LW10
+Network 3 
+LD     SM0.0
+MOVD   LD6, LD29
++D     +4, LD29
+Network 4 
+LDW<=  LW10, 0
+JMP    1
+Network 5 
+// 准备运行16#047E，停止、正转启动16#047F；40100控制字读取写到vw100，每个位都是不同的控制方式，打开v20变频器操作手册160页有详解；
+// 16#047E和16#047F只是区别于最低位的不同，也就是v101.0位不一样（0和1），1代表开启，0代表停止；v101.7就是变频器故障确认复位；
+LD     SM0.0
+LPS
+A      L0.1
+MOVW   16#047E, LW41
+LRD
+A      L0.2
+MOVW   16#047F, LW41
+LRD
+A      L0.3
+=      L42.7
+LPP
+MOVW   LW41, *LD6
+Network 6 
+// 40101速度设定，读取写入vw102；
+// 16#4000写入40101就是写入50HZ的意思，16进制4000转成10进制就是16384，那1HZ就是327.68；
+LD     SM0.0
+MOVR   LD2, LD47
+*R     327.68, LD47
+ROUND  LD47, LD51
+DTI    LD51, LW43
+MOVD   LD6, LD51
++D     +2, LD51
+MOVW   LW43, *LD51
+Network 7 
+// 40100控制字，40101速度设定值，变频器站地址slave=1，RW，0=读，1=写
+// EN使能1为接通
+// First沿触发
+// Slave从站地址
+// RW读写
+// ADDr寄存器地址，v20操作手册139有详细说明
+// Count读取寄存器个数
+// DataPTR读取的寄存器存放起始地址，地址用指针寻址
+LDW=   LW10, 1
+=      L60.0
+LDW=   LW10, 1
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 1, 40100, 2, LD6, L59.0, LB55
+Network 8 
+LDW>=  LW10, 2
+AW<    LW10, 1000
+INCW   LW10
+Network 9 
+// 复位前一个使能
+LDW=   LW10, 1
+A      L59.0
+MOVW   2, LW10
+Network 10 
+// 读取频率实际值
+LDW=   LW10, 1000
+=      L60.0
+LDW=   LW10, 1000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40111, 1, LD29, L59.1, LB56
+Network 11 
+// 转换为浮点数存储
+Network 12 
+LDW>=  LW10, 1001
+AW<    LW10, 2000
+INCW   LW10
+Network 13 
+// 复位前一个使能
+LDW=   LW10, 1000
+A      L59.1
+MOVW   1001, LW10
+Network 14 
+// 读取电流、电流、功耗，具体参看v20操作手册，每个modbus地址代表的含义
+LDW=   LW10, 2000
+=      L60.0
+LDW=   LW10, 2000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40026, 8, LD33, L59.2, LB57
+Network 15 
+// 实际电流 电压 耗能
+Network 16 
+LDW>=  LW10, 2001
+AW<    LW10, 3000
+INCW   LW10
+Network 17 
+LDW=   LW10, 2000
+A      L59.2
+MOVW   2001, LW10
+Network 18 
+Network 19 
+// 读状态字      v171.2为变频器运行  v171.3为变频器故障  v171.7为变频器报警
+LDW=   LW10, 3000
+=      L60.0
+LDW=   LW10, 3000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40110, 1, LD37, L59.3, LB58
+Network 20 
+LDW>=  LW10, 3001
+AW<    LW10, 4000
+INCW   LW10
+Network 21 
+//  
+LDW=   LW10, 3000
+A      L59.3
+MOVW   3001, LW10
+Network 22 
+// 程序段注释
+LDW=   LW10, 4000
+=      L12.0
+MOVW   0, LW10
+Network 23 
+LBL    1
+Network 24 
+LD     SM0.0
+MOVW   *LD29, LW45
+ITD    LW45, LD51
+DTR    LD51, LD47
+MOVR   LD47, LD13
+/R     327.68, LD13
+Network 25 
+LD     SM0.0
+LPS
+MOVW   *LD33, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD47
+AENO
+MOVR   LD47, LD17
+/R     100.0, LD17
+LRD
+MOVD   LD33, LD51
+AENO
++D     +6, LD51
+AENO
+MOVW   *LD51, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD21
+LPP
+MOVD   LD33, LD51
+AENO
++D     +14, LD51
+AENO
+MOVW   *LD51, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD25
+END_SUBROUTINE_BLOCK

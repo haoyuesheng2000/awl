@@ -1,0 +1,1866 @@
+ORGANIZATION_BLOCK MAIN:OB1
+TITLE=程序注释
+BEGIN
+Network 1 
+LD     SM0.0
+CALL   SBR13
+CALL   SBR14
+CALL   SBR16
+CALL   SBR27
+CALL   SBR32
+CALL   SBR40
+CALL   SBR42
+CALL   SBR50
+Network 2 
+LD     SM0.1
+R      V350.0, 1
+END_ORGANIZATION_BLOCK
+SUBROUTINE_BLOCK MB_CTRL2:SBR0
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_INPUT
+Mode:BOOL;	//  1 = Modbus, 0 = PPI (stop Modbus)
+Baud:DWORD;	//  1200, 2400 ... 115200
+Parity:BYTE;	//  0 = none, 1 = odd, 2 = even
+Port:BYTE;	// 0 or 1
+Timeout:INT;	//  slave response timeout in milliseconds
+END_VAR
+VAR_OUTPUT
+Done:BOOL;	//  Done flag (always set)
+Error:BYTE;	//  Error status
+END_VAR
+VAR
+AC0save:DWORD;
+AC1save:DWORD;
+AC2save:DWORD;
+AC3save:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK MB_MSG2:SBR12
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_INPUT
+First:BOOL;	// New message (Set to a 1 for only one scan for a new request)
+Slave:BYTE;	// Slave address (0 - 247)
+RW:BYTE;	// Read = 0, Write = 1
+Addr:DWORD;	// Modbus addr (ie 40001)
+Count:INT;	// Number of elements (1- 120 words or 1 to 1920 bits)
+DataPtr:DWORD;	// Pointer to data (ie &VB100)
+END_VAR
+VAR_OUTPUT
+Done:BOOL;	// Done flag (0 = busy, 1 = done)
+Error:BYTE;	// Error (0 = no error)
+END_VAR
+VAR
+AC0save:DWORD;
+AC1save:DWORD;
+AC2save:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK 逻辑控制:SBR13
+TITLE=
+BEGIN
+Network 1 
+// 循环风机开关
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M2.2
+ALD
+R      Q0.1, 1
+R      M2.2, 1
+LPP
+LD     M2.2
+OW>=   VW520, 600
+ALD
+=      Q0.1
+=      M2.2
+Network 2 
+// 电加热
+LD     SM0.0
+LPS
+AN     M1.0
+R      Q0.0, 1
+R      V5.2, 1
+LPP
+A      M1.0
+A      I0.0
+A      M2.2
+=      Q0.0
+=      V5.2
+Network 3 
+// 料泵开关
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M1.6
+ALD
+R      Q0.2, 1
+R      M1.6, 1
+LPP
+A      M1.6
+=      M1.6
+=      Q0.2
+Network 4 
+// 保压阀
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.6
+ALD
+R      Q0.6, 1
+R      M4.6, 1
+LPP
+A      M4.6
+=      Q0.6
+=      M4.6
+Network 5 
+// 雾化阀
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.7
+ALD
+R      Q0.7, 1
+R      M4.7, 1
+LPP
+A      M4.7
+=      Q0.7
+=      M4.7
+Network 6 
+// 微氧切断阀
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.5
+ALD
+R      Q0.5, 1
+R      M4.5, 1
+LPP
+A      M4.5
+=      Q0.5
+=      M4.5
+Network 7 
+// 氧气切断阀
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.4
+ALD
+R      Q0.4, 1
+R      M4.4, 1
+LPP
+A      M4.4
+=      Q0.4
+=      M4.4
+Network 8 
+// 进氮阀
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M5.1
+ALD
+R      Q8.0, 1
+R      M5.1, 1
+LPP
+A      M5.1
+=      Q8.0
+=      M5.1
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK 输入量转换:SBR14
+TITLE=
+BEGIN
+Network 1 
+// 循环风机反馈
+LD     SM0.0
+CALL   SBR22, AIW32, +27648, 0, 50.0, 0.0, VD3008
+Network 2 
+// 主塔压力
+LD     SM0.0
+CALL   SBR22, AIW36, +27648, 5530, 10000.0, -10000.0, VD3100
+Network 3 
+// 管道压力
+LD     SM0.0
+CALL   SBR22, AIW34, +27648, 5530, 10000.0, -10000.0, VD3112
+Network 4 
+// 氧含仪
+LD     SM0.0
+CALL   SBR22, AIW48, +27648, 5530, 25.0, 0.0, VD3116
+Network 5 
+// 微氧仪
+LD     SM0.0
+CALL   SBR22, AIW38, +27648, 5530, 1000.0, 0.0, VD3136
+Network 6 
+// 进氮压力
+LD     SM0.0
+CALL   SBR22, AIW50, +27648, 5530, 5.0, 0.0, VD3132
+Network 7 
+// 分界线
+Network 8 
+// 循环风机频率
+LD     SM0.0
+CALL   SBR24, VD2004, 50.0, 0.0, 27648, 0, AQW48
+AR<    VD2004, 25.0
+MOVR   25.0, VD2004
+Network 9 
+// 比例调节阀
+LD     SM0.0
+CALL   SBR24, VD2028, 100.0, 0.0, 27648, 0, AQW50
+Network 10 
+// 引风机频率
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK 故障报警:SBR16
+TITLE=
+BEGIN
+Network 1 
+LD     SM0.1
+S      M5.1, 1
+R      M4.6, 1
+R      M4.7, 1
+R      M4.4, 1
+R      M4.5, 1
+R      M2.2, 1
+R      M1.0, 1
+Network 2 
+// 进风温度故障报警
+LD     SM0.0
+LPS
+LDW>   VW520, +3000
+OW<    VW520, +0
+ALD
+=      V0.0
+LPP
+LPS
+AW>    VW520, VW2100
+=      V0.1
+LPP
+AW<    VW520, VW2104
+=      V0.2
+Network 3 
+// 出风温度故障报警
+LD     SM0.0
+LPS
+LDW>   VW620, +3000
+OW<    VW620, +0
+ALD
+=      V0.3
+LPP
+LPS
+AW>    VW620, VW2108
+=      V0.4
+LPP
+AW<    VW620, VW2112
+=      V0.5
+Network 4 
+// 尾气温度故障报警
+LD     SM0.0
+LPS
+LDW>   VW720, +3000
+OW<    VW720, +0
+ALD
+=      V0.6
+LPP
+AW>    VW720, VW2116
+=      V0.7
+Network 5 
+//  压差压力氧浓上限报警
+LD     SM0.0
+LPS
+AR>=   VD3116, VD2148
+=      V1.0
+LPP
+AR>=   VD3100, VD2124
+=      V1.2
+Network 6 
+// 氧气和微氧切换
+LD     SM0.0
+AN     V350.0
+LPS
+AR>=   VD3116, 0.0
+AR<    VD3116, VD2156
+R      M4.4, 1
+S      M4.5, 1
+LPP
+AR>=   VD3116, VD2156
+AR<=   VD3116, 25.0
+S      M4.4, 1
+R      M4.5, 1
+Network 7 
+LD     SM0.0
+LPS
+A      M2.2
+EU
+AN     V350.0
+R      M4.6, 1
+LPP
+AN     M2.2
+EU
+AN     V350.0
+S      M4.6, 1
+Network 8 
+LD     SM0.0
+LPS
+A      V0.0
+=      V1000.0
+LRD
+A      V0.1
+=      V1000.1
+LRD
+A      V0.2
+=      V1000.2
+LRD
+A      V0.3
+=      V1000.3
+LRD
+A      V0.4
+=      V1000.4
+LRD
+A      V0.5
+=      V1000.5
+LRD
+A      V0.6
+=      V1000.6
+LRD
+A      V0.7
+=      V1000.7
+LRD
+A      V1.0
+=      V1001.0
+LRD
+A      V1.2
+=      V1001.1
+LRD
+AN     I0.0
+=      V1001.2
+LPP
+A      I1.1
+=      V1001.3
+Network 9 
+// 此处报警送给进料泵
+LD     SM0.0
+LD     V0.0
+O      V0.1
+O      V0.3
+O      V0.6
+O      V0.7
+O      V1.2
+ON     I0.0
+O      I1.1
+ALD
+=      M6.0
+Network 10 
+LDW<>  VW1000, 0
+=      Q0.3
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK MBUS_CTRL:SBR19
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_INPUT
+Mode:BOOL;	//  1 = Modbus, 0 = PPI (stop Modbus)
+Baud:DWORD;	//  1200, 2400 ... 115200
+Parity:BYTE;	//  0 = none, 1 = odd, 2 = even
+Port:BYTE;	// 0 or 1
+Timeout:INT;	//  slave response timeout in milliseconds
+END_VAR
+VAR_OUTPUT
+Done:BOOL;	//  Done flag (always set)
+Error:BYTE;	//  Error status
+END_VAR
+VAR
+AC0save:DWORD;
+AC1save:DWORD;
+AC2save:DWORD;
+AC3save:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK MBUS_MSG:SBR20
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_INPUT
+First:BOOL;	// New message (Set to a 1 for only one scan for a new request)
+Slave:BYTE;	// Slave address (0 - 247)
+RW:BYTE;	// Read = 0, Write = 1
+Addr:DWORD;	// Modbus addr (ie 40001)
+Count:INT;	// Number of elements (1- 120 words or 1 to 1920 bits)
+DataPtr:DWORD;	// Pointer to data (ie &VB100)
+END_VAR
+VAR_OUTPUT
+Done:BOOL;	// Done flag (0 = busy, 1 = done)
+Error:BYTE;	// Error (0 = no error)
+END_VAR
+VAR
+AC0save:DWORD;
+AC1save:DWORD;
+AC2save:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK MBUSM1:SBR21
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_OUTPUT
+crc:WORD;
+END_VAR
+VAR
+count:INT;
+ptr:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK S_ITR:SBR22
+TITLE=LIBARY: Scale V1.2 (bipolar scaling)
+// =============================
+// 
+// LIABILITY
+// Siemens AG does not accept liability of any kind for damages arising from the use of this application, except where it is obliged to by law, in cases such as damage to items used for personal purposes, personal injury, willful damage or gross negligence.
+// 
+// WARRANTY
+// The program examples given are specific solutions to complex tasks which were worked on by Customer Support. We must also point out that it is not possible in the current state of the technology to exclude all errors in software programs under all conditions of use. The program examples were prepared according to the best of our knowledge. However, we cannot accept any liability beyond the standard guarantee for Class C software in accordance with our General Terms of Sale for Software Products for Automation and Drive Technology". The program examples can be purchased on the Internet as single licenses. They may not be transferred to a third party.
+// 
+// PASSWORD
+// The password of the library is "1234"
+// 
+// S_ITR
+// Scale Integer to Real
+// 
+//  The formula is as follows:
+//  Ov = [(OSH - OSL) * (Iv - ISL) / (ISH - ISL)] + OSL
+//  with ISL <= Iv <= ISH 
+//  and OSL <= Ov <= OSH
+// 
+//  Ov	=	output value (REAL)
+//  Iv	=	input value (INT)
+//  OSH	=	high limit of the scale for the output value (REAL)
+//  OSL	=	low limit of the scale for the output value (REAL)
+//  ISH	=	high limit of the scale for the input value (INT)
+//  ISL	=	low limit of the scale for the input value (INT) 
+// 
+// MICRO PRM
+// 
+// 
+// 
+// 
+VAR_INPUT
+Input:INT;
+ISH:INT;
+ISL:INT;
+OSH:REAL;
+OSL:REAL;
+END_VAR
+VAR_OUTPUT
+Output:REAL;
+END_VAR
+VAR
+Input_DI:DINT;
+ISL_DI:DINT;
+ISH_DI:DINT;
+delta_R:REAL;
+delta_max:REAL;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK S_RTR:SBR23
+TITLE=LIBARY: Scale V1.2
+// ================
+// 
+// LIABILITY
+// Siemens AG does not accept liability of any kind for damages arising from the use of this application, except where it is obliged to by law, in cases such as damage to items used for personal purposes, personal injury, willful damage or gross negligence.
+// 
+// WARRANTY
+// The program examples given are specific solutions to complex tasks which were worked on by Customer Support. We must also point out that it is not possible in the current state of the technology to exclude all errors in software programs under all conditions of use. The program examples were prepared according to the best of our knowledge. However, we cannot accept any liability beyond the standard guarantee for Class C software in accordance with our General Terms of Sale for Software Products for Automation and Drive Technology". The program examples can be purchased on the Internet as single licenses. They may not be transferred to a third party.
+// 
+// PASSWORD
+// The password of the library is "1234"
+// 
+// S_RTR
+// Scale Real to Real
+// 
+//  The formula is as follows:
+//  Ov = [(OSH - OSL) * (Iv - ISL) / (ISH - ISL)] + OSL
+//  with ISL <= Iv <= ISH 
+//  and OSL <= Ov <= OSH
+// 
+//  Ov	=	output value (REAL)
+//  Iv	=	input value (REAL)
+//  OSH	=	high limit of the scale for the output value (REAL)
+//  OSL	=	low limit of the scale for the output value (REAL)
+//  ISH	=	high limit of the scale for the input value (REAL)
+//  ISL	=	low limit of the scale for the input value (REAL) 
+// 
+// 
+// 
+// 
+// 
+// MICRO PRM
+// 
+VAR_INPUT
+Input:REAL;
+ISH:REAL;
+ISL:REAL;
+OSH:REAL;
+OSL:REAL;
+END_VAR
+VAR_OUTPUT
+Output:REAL;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK S_RTI:SBR24
+TITLE=LIBARY: Scale V1.2 (bipolar scaling)
+// =============================
+// 
+// LIABILITY
+// Siemens AG does not accept liability of any kind for damages arising from the use of this application, except where it is obliged to by law, in cases such as damage to items used for personal purposes, personal injury, willful damage or gross negligence.
+// 
+// WARRANTY
+// The program examples given are specific solutions to complex tasks which were worked on by Customer Support. We must also point out that it is not possible in the current state of the technology to exclude all errors in software programs under all conditions of use. The program examples were prepared according to the best of our knowledge. However, we cannot accept any liability beyond the standard guarantee for Class C software in accordance with our General Terms of Sale for Software Products for Automation and Drive Technology". The program examples can be purchased on the Internet as single licenses. They may not be transferred to a third party.
+// 
+// PASSWORD
+// The password of the library is "1234"
+// 
+// S_RTI
+// Scale Real to Integer
+// 
+//  The formula is as follows:
+//  Ov = [(OSH - OSL) * (Iv - ISL) / (ISH - ISL)] + OSL
+//  with ISL <= Iv <= ISH 
+//  and OSL <= Ov <= OSH
+// 
+//  Ov	=	output value (INT)
+//  Iv	=	input value (REAL)
+//  OSH	=	high limit of the scale for the output value (INT)
+//  OSL	=	low limit of the scale for the output value (INT)
+//  ISH	=	high limit of the scale for the input value (REAL)
+//  ISL	=	low limit of the scale for the input value (REAL) 
+// 
+// 
+// MICRO PRM
+// 
+// 
+// 
+VAR_INPUT
+Input:REAL;
+ISH:REAL;
+ISL:REAL;
+OSH:INT;
+OSL:INT;
+END_VAR
+VAR_OUTPUT
+Output:INT;
+END_VAR
+VAR
+OSH_DI:DINT;
+OSH_R:REAL;
+temp_I:INT;
+OSL_DI:DINT;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A2_V20:SBR27
+TITLE=子程序注释
+BEGIN
+Network 1 
+// 变频器默认偶校验2     port=1为信号板
+// 变频器的参数设定要与程序里面的写的一样，波特率，奇偶校验等
+// 调用库记得存储器分配，不然编译过不了
+LD     SM0.0
+=      L60.0
+LD     SM0.0
+=      L63.7
+LD     L60.0
+CALL   SBR0, L63.7, 9600, 2, 1, 1000, V40.0, VB4000
+Network 2 
+// 初始化完成开始启动轮询方式，每个轮询done位作为每个轮询的开启
+LD     V40.0
+EU
+=      V41.0
+Network 3 
+LD     SM0.0
+=      L60.0
+LD     V41.0
+O      V42.3
+O      SM0.1
+=      L63.7
+LDN    V41.1
+=      L63.6
+LD     V41.1
+=      L63.5
+LD     V41.2
+=      L63.4
+LD     L60.0
+CALL   SBR28, L63.7, L63.6, L63.5, L63.4, 1, VD4100, VD4128, VW4124, V41.3, VD4108, VD4112, VD4116, VD4120
+Network 4 
+LD     SM0.0
+=      L60.0
+LD     V41.3
+=      L63.7
+LD     V42.4
+=      L63.6
+LD     V42.1
+=      L63.5
+LD     V42.2
+=      L63.4
+LD     L60.0
+CALL   SBR28, L63.7, L63.6, L63.5, L63.4, 2, VD4200, &VD4228, VW4224, V42.3, VD4208, VD4212, VD4216, VD4220
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A2_V20_BLOCK:SBR28
+TITLE=
+VAR_INPUT
+触发:BOOL;
+停止:BOOL;
+启动:BOOL;
+复位:BOOL;
+站号:BYTE;
+频率设定:REAL;
+指针:DWORD;
+END_VAR
+VAR_IN_OUT
+Indx:INT;
+END_VAR
+VAR_OUTPUT
+结束:BOOL;
+当前频率:REAL;
+当前电流:REAL;
+当前能耗:REAL;
+当前电压:REAL;
+END_VAR
+VAR
+指针2:DWORD;
+指针3:DWORD;
+指针4:DWORD;
+控制字:WORD;
+频率:WORD;
+tm_int:INT;
+tm_Real:REAL;
+tm_Dint:DINT;
+tm_Error1:BYTE;
+tm_Error2:BYTE;
+tm_Error3:BYTE;
+tm_Error4:BYTE;
+Done_1:BOOL;
+Done_2:BOOL;
+Done_3:BOOL;
+Done_4:BOOL;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVB   0, LB59
+AENO
+MOVD   LD6, LD33
+AENO
++D     +6, LD33
+AENO
+MOVD   LD6, LD37
++D     +22, LD37
+Network 2 
+LD     L0.0
+MOVW   1, LW10
+Network 3 
+LD     SM0.0
+MOVD   LD6, LD29
++D     +4, LD29
+Network 4 
+LDW<=  LW10, 0
+JMP    1
+Network 5 
+// 准备运行16#047E，停止、正转启动16#047F；40100控制字读取写到vw100，每个位都是不同的控制方式，打开v20变频器操作手册160页有详解；
+// 16#047E和16#047F只是区别于最低位的不同，也就是v101.0位不一样（0和1），1代表开启，0代表停止；v101.7就是变频器故障确认复位；
+LD     SM0.0
+LPS
+A      L0.1
+MOVW   16#047E, LW41
+LRD
+A      L0.2
+MOVW   16#047F, LW41
+LRD
+A      L0.3
+=      L42.7
+LPP
+MOVW   LW41, *LD6
+Network 6 
+// 40101速度设定，读取写入vw102；
+// 16#4000写入40101就是写入50HZ的意思，16进制4000转成10进制就是16384，那1HZ就是327.68；
+LD     SM0.0
+MOVR   LD2, LD47
+*R     327.68, LD47
+ROUND  LD47, LD51
+DTI    LD51, LW43
+MOVD   LD6, LD51
++D     +2, LD51
+MOVW   LW43, *LD51
+Network 7 
+// 40100控制字，40101速度设定值，变频器站地址slave=1，RW，0=读，1=写
+// EN使能1为接通
+// First沿触发
+// Slave从站地址
+// RW读写
+// ADDr寄存器地址，v20操作手册139有详细说明
+// Count读取寄存器个数
+// DataPTR读取的寄存器存放起始地址，地址用指针寻址
+LDW=   LW10, 1
+=      L60.0
+LDW=   LW10, 1
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 1, 40100, 2, LD6, L59.0, LB55
+Network 8 
+LDW>=  LW10, 2
+AW<    LW10, 1000
+INCW   LW10
+Network 9 
+// 复位前一个使能
+LDW=   LW10, 1
+A      L59.0
+MOVW   2, LW10
+Network 10 
+// 读取频率实际值
+LDW=   LW10, 1000
+=      L60.0
+LDW=   LW10, 1000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40111, 1, LD29, L59.1, LB56
+Network 11 
+// 转换为浮点数存储
+Network 12 
+LDW>=  LW10, 1001
+AW<    LW10, 2000
+INCW   LW10
+Network 13 
+// 复位前一个使能
+LDW=   LW10, 1000
+A      L59.1
+MOVW   1001, LW10
+Network 14 
+// 读取电流、电流、功耗，具体参看v20操作手册，每个modbus地址代表的含义
+LDW=   LW10, 2000
+=      L60.0
+LDW=   LW10, 2000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40026, 8, LD33, L59.2, LB57
+Network 15 
+// 实际电流 电压 耗能
+Network 16 
+LDW>=  LW10, 2001
+AW<    LW10, 3000
+INCW   LW10
+Network 17 
+LDW=   LW10, 2000
+A      L59.2
+MOVW   2001, LW10
+Network 18 
+Network 19 
+// 读状态字      v171.2为变频器运行  v171.3为变频器故障  v171.7为变频器报警
+LDW=   LW10, 3000
+=      L60.0
+LDW=   LW10, 3000
+EU
+=      L63.7
+LD     L60.0
+CALL   SBR12, L63.7, LB1, 0, 40110, 1, LD37, L59.3, LB58
+Network 20 
+LDW>=  LW10, 3001
+AW<    LW10, 4000
+INCW   LW10
+Network 21 
+//  
+LDW=   LW10, 3000
+A      L59.3
+MOVW   3001, LW10
+Network 22 
+// 程序段注释
+LDW=   LW10, 4000
+=      L12.0
+MOVW   0, LW10
+Network 23 
+LBL    1
+Network 24 
+LD     SM0.0
+MOVW   *LD29, LW45
+ITD    LW45, LD51
+DTR    LD51, LD47
+MOVR   LD47, LD13
+/R     327.68, LD13
+Network 25 
+LD     SM0.0
+LPS
+MOVW   *LD33, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD47
+AENO
+MOVR   LD47, LD17
+/R     100.0, LD17
+LRD
+MOVD   LD33, LD51
+AENO
++D     +6, LD51
+AENO
+MOVW   *LD51, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD21
+LPP
+MOVD   LD33, LD51
+AENO
++D     +14, LD51
+AENO
+MOVW   *LD51, LW45
+AENO
+ITD    LW45, LD51
+AENO
+DTR    LD51, LD25
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK MBM1:SBR29
+TITLE=This code is property of Siemens Industry, Inc. 
+VAR_OUTPUT
+crc:WORD;
+END_VAR
+VAR
+count:INT;
+ptr:DWORD;
+END_VAR
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A4_MC:SBR32
+TITLE=子程序注释
+BEGIN
+Network 1 
+// 布袋气扫
+LD     SM0.0
+=      L60.0
+LD     V3.0
+=      L63.7
+LD     V3.1
+=      L63.6
+LD     T36
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1024, 0.1, &VB1100, V11.0, V11.1, V11.2, V11.3, V11.4, V11.5, V11.6, V11.7
+Network 2 
+LD     SM0.0
+LPS
+AN     T35
+TON    T35, 1
+LPP
+MOVB   4, VB1110
+Network 3 
+// //布袋振打
+LD     SM0.0
+=      L60.0
+LD     V3.2
+=      L63.7
+LD     V3.3
+=      L63.6
+LD     T36
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1028, 0.1, &VB1200, V12.0, V12.1, V12.2, V12.3, V12.4, V12.5, V12.6, V12.7
+Network 4 
+LD     SM0.0
+LPS
+AN     T36
+TON    T36, 1
+LPP
+MOVB   4, VB1210
+Network 5 
+// //通针间隔
+LD     SM0.0
+=      L60.0
+LD     V3.4
+=      L63.7
+LD     V3.5
+=      L63.6
+LD     T37
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1036, 0.2, &VB1300, V13.0, V13.1, V13.2, V13.3, V13.4, V13.5, V13.6, V13.7
+Network 6 
+LD     SM0.0
+LPS
+AN     T37
+TON    T37, 1
+LPP
+MOVB   4, VB1310
+Network 7 
+// //主塔振打
+LD     SM0.0
+=      L60.0
+LD     V3.6
+=      L63.7
+LD     V3.7
+=      L63.6
+LD     T38
+=      L63.5
+LD     L60.0
+CALL   SBR39, L63.7, L63.6, L63.5, VD1032, 0.2, &VB1400, V14.0, V14.1, V14.2, V14.3, V14.4, V14.5, V14.6, V14.7
+Network 8 
+LD     SM0.0
+LPS
+AN     T38
+TON    T38, 1
+LPP
+MOVB   4, VB1410
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A4_MC_BLOCK:SBR39
+TITLE=
+VAR_INPUT
+开始正序输出:BOOL;
+开始逆序输出:BOOL;
+Clock_1s:BOOL;
+间隔时间:REAL;
+保持时间:REAL;
+缓存区:DWORD;
+END_VAR
+VAR_OUTPUT
+OUT1:BOOL;
+OUT2:BOOL;
+OUT3:BOOL;
+OUT4:BOOL;
+OUT5:BOOL;
+OUT6:BOOL;
+OUT7:BOOL;
+OUT8:BOOL;
+END_VAR
+VAR
+控制字:BYTE;
+指针:DWORD;
+tm_保持时间到:BOOL;
+tm_间隔时间到:BOOL;
+输出数量:BYTE;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVB   *LD9, LB14
+MOVD   LD9, LD15
+AENO
++D     +10, LD15
+AENO
+MOVB   *LD15, LB20
+Network 2 
+// \\启动
+LD     L0.0
+AN     L0.1
+LD     L0.1
+AN     L0.0
+OLD
+=      L14.0
+Network 3 
+// \\初始化-----重置序列--复位计时
+LD     L14.0
+LPS
+AN     L14.1
+LPS
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+=      L14.1
+Network 4 
+// \\保持计时
+LD     L14.0
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+LPS
+A      L0.2
+LPS
+AN     L14.2
++R     0.01, *LD15
+LPP
+=      L14.2
+LPP
+AR>=   *LD15, LD5
+=      L19.0
+Network 5 
+// \\间隔计时
+LD     L19.0
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+LPS
+A      L0.2
+LPS
+AN     L14.3
++R     0.01, *LD15
+LPP
+=      L14.3
+LPP
+AR>=   *LD15, LD1
+=      L19.1
+Network 6 
+// \\正序
+LD     L19.1
+LPS
+AN     L14.4
+A      L0.0
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+INCB   *LD15
+AB>    *LD15, LB20
+MOVB   0, *LD15
+LPP
+=      L14.4
+Network 7 
+// \\逆序
+LD     L19.1
+LPS
+AN     L14.5
+A      L0.1
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+LPS
+AB=    *LD15, 0
+MOVB   LB20, *LD15
+LPP
+AB>    *LD15, 0
+DECB   *LD15
+LPP
+=      L14.5
+Network 8 
+// \\复位保持计时
+// \\复位间隔计时
+LD     L19.1
+LPS
+MOVD   LD9, LD15
+AENO
++D     +2, LD15
+AENO
+MOVR   0.0, *LD15
+LPP
+MOVD   LD9, LD15
+AENO
++D     +6, LD15
+AENO
+MOVR   0.0, *LD15
+Network 9 
+// \\输出结果
+
+
+LD     L14.0
+AN     L19.0
+MOVD   LD9, LD15
+AENO
++D     1, LD15
+AENO
+MOVB   1, LB13
+SLB    LB13, *LD15
+NOT
+MOVB   0, LB13
+Network 10 
+LD     SM0.0
+MOVB   LB14, *LD9
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A5_DTC:SBR40
+TITLE=子程序注释
+BEGIN
+Network 1 
+// 程序段注释
+LD     SM0.0
+=      L60.0
+LD     SM0.0
+=      L63.7
+LD     L60.0
+CALL   SBR19, L63.7, 9600, 0, 0, 1000, V10.0, VB204
+Network 2 
+LD     V10.0
+EU
+LD     V7.1
+ED
+OLD
+=      V5.0
+Network 3 
+LD     SM0.1
+MOVW   1, VW522
+AENO
+MOVW   1, VW622
+AENO
+MOVW   1, VW722
+Network 4 
+LD     SM0.0
+CALL   SBR41, 1, V5.0, VW500, V5.2, VD502, VD506, &VB522, V5.3, V5.1, VW510, VW510, VW512, VW518, VW520
+Network 5 
+LD     SM0.0
+CALL   SBR41, 2, V5.1, VW600, V6.2, VD602, VD606, &VB622, V6.3, V6.1, VW610, VW612, VW614, VW618, VW620
+Network 6 
+LD     SM0.0
+CALL   SBR41, 3, V7.1, VW700, V7.2, VD702, VD706, &VB722, V7.3, V7.1, VW710, VW712, VW714, VW718, VW720
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A5_DTC_BLOCK:SBR41
+TITLE=
+VAR_INPUT
+站号:BYTE;
+触发:BOOL;
+输入模式:INT;
+输入开关:BOOL;
+输入设定:REAL;
+输入开度:REAL;
+缓存区:DWORD;
+END_VAR
+VAR_IN_OUT
+自整定:BOOL;
+END_VAR
+VAR_OUTPUT
+结束:BOOL;
+P:INT;
+I:INT;
+D:INT;
+输出开度:INT;
+温度:INT;
+END_VAR
+VAR
+tm_轮询ID:INT;
+tm_上次ID:INT;
+tm_完成:BOOL;
+tm_故障:BYTE;
+缓存1:DWORD;
+指针:DWORD;
+模式:BYTE;
+地址:DINT;
+长度:INT;
+tm_Real:REAL;
+tm_Dint:DINT;
+AT:BOOL;
+AT_bck:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// 程序段注释
+LD     SM0.0
+LPS
+MOVW   *LD13, LW28
+MOVD   LD13, LD38
+AENO
++D     +2, LD38
+AENO
+MOVW   *LD38, LW30
+LPP
+MOVD   LD13, LD38
+AENO
++D     +44, LD38
+AENO
+MOVB   *LD38, LB57
+Network 2 
+LD     L1.0
+AW=    LW28, 0
+MOVW   1, LW28
+Network 3 
+// 自整定
+LD     SM0.0
+LPS
+AN     L17.0
+LPS
+MOVD   LD13, LD38
+AENO
++D     +28, LD38
+AENO
+MOVW   16#0, *LD38
+LRD
+MOVD   LD13, LD38
+AENO
++D     +40, LD38
+AENO
+MOVD   LD13, LD34
+AENO
++D     +10, LD34
+AENO
+MOVW   *LD34, *LD38
+LPP
+MOVD   LD13, LD38
+AENO
++D     +42, LD38
+AENO
+MOVD   LD13, LD34
+AENO
++D     +10, LD34
+AENO
+MOVW   *LD34, *LD38
+LRD
+A      L17.0
+LPS
+MOVD   LD13, LD38
+AENO
++D     +28, LD38
+AENO
+MOVW   16#FF00, *LD38
+LPP
+MOVD   LD13, LD38
+AENO
++D     +42, LD38
+AENO
+MOVD   LD13, LD34
+AENO
++D     +10, LD34
+AENO
+MOVW   *LD34, *LD38
+LPP
+MOVD   LD13, LD38
+AENO
++D     +42, LD38
+AENO
+MOVD   LD13, LD34
+AENO
++D     +40, LD34
+AENO
+AW<>   *LD38, *LD34
+R      L17.0, 1
+Network 4 
+LD     SM0.0
+LPS
+AW=    LW28, 1
+MOVB   0, LB42
+AENO
+MOVD   44097, LD43
+AENO
+MOVW   2, LW47
+AENO
+MOVD   LD13, LD38
++D     +4, LD38
+LRD
+AW=    LW28, 2
+MOVB   0, LB42
+AENO
+MOVD   44102, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
++D     +8, LD38
+LRD
+AW=    LW28, 3
+MOVB   0, LB42
+AENO
+MOVD   44106, LD43
+AENO
+MOVW   3, LW47
+AENO
+MOVD   LD13, LD38
++D     +10, LD38
+LRD
+AW=    LW28, 4
+MOVB   0, LB42
+AENO
+MOVD   44116, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
++D     +16, LD38
+LRD
+AW=    LW28, 5
+MOVB   0, LB42
+AENO
+MOVD   12068, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
++D     +18, LD38
+LRD
+AW=    LW28, 6
+MOVB   1, LB42
+AENO
+MOVD   44098, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
+AENO
++D     +20, LD38
+AENO
+MOVR   LD5, LD49
+AENO
+*R     10.0, LD49
+AENO
+ROUND  LD49, LD53
+AENO
+DTI    LD53, *LD38
+LRD
+AW=    LW28, 7
+MOVB   1, LB42
+AENO
+MOVD   44102, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
+AENO
++D     +22, LD38
+AENO
+MOVW   LW2, *LD38
+LRD
+AW=    LW28, 8
+MOVB   1, LB42
+AENO
+MOVD   44116, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
+AENO
++D     +24, LD38
+AENO
+MOVR   LD9, LD49
+AENO
+*R     10.0, LD49
+AENO
+ROUND  LD49, LD53
+AENO
+DTI    LD53, *LD38
+LRD
+AW=    LW28, 9
+MOVB   1, LB42
+AENO
+MOVD   2068, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
+AENO
++D     +26, LD38
+AENO
+LPS
+A      L17.0
+MOVW   16#FF00, *LD38
+LPP
+AN     L17.0
+MOVW   16#0, *LD38
+LRD
+AW=    LW28, 10
+MOVB   1, LB42
+AENO
+MOVD   2069, LD43
+AENO
+MOVW   1, LW47
+AENO
+MOVD   LD13, LD38
+AENO
++D     +28, LD38
+AENO
+LPS
+A      L4.0
+MOVW   16#FF00, *LD38
+LPP
+AN     L4.0
+MOVW   16#0, *LD38
+LPP
+LPS
+AW=    LW28, 0
+JMP    1
+LPP
+A      SM0.0
+AW<>   LW28, LW30
+EU
+R      L32.0, 1
+Network 5 
+LD     SM0.0
+=      L60.0
+LD     SM0.0
+AW<>   LW28, LW30
+=      L63.7
+LD     L60.0
+CALL   SBR20, L63.7, LB0, LB42, LD43, LW47, LD38, L32.0, LB33
+Network 6 
+LD     SM0.0
+LPS
+MOVW   LW28, LW30
+MOVD   LD13, LD38
+AENO
++D     +10, LD38
+AENO
+MOVW   *LD38, LW18
+LRD
+MOVD   LD13, LD38
+AENO
++D     +12, LD38
+AENO
+MOVW   *LD38, LW20
+LRD
+MOVD   LD13, LD38
+AENO
++D     +14, LD38
+AENO
+MOVW   *LD38, LW22
+LRD
+MOVD   LD13, LD38
+AENO
++D     +16, LD38
+AENO
+MOVW   *LD38, LW24
+LPP
+MOVD   LD13, LD38
+AENO
++D     +4, LD38
+AENO
+MOVW   *LD38, LW26
+Network 7 
+Network 8 
+LD     SM0.0
+AW>=   LW28, 10
+=      L17.1
+MOVW   0, LW28
+MOVW   0, LW30
+Network 9 
+LD     SM0.0
+A      L32.0
+LPS
+AW<    LW28, 10
++I     1, LW28
+LPP
+R      L32.0, 1
+Network 10 
+LBL    1
+Network 11 
+LD     SM0.0
+MOVW   LW28, *LD13
+MOVD   LD13, LD38
+AENO
++D     +2, LD38
+AENO
+MOVW   LW30, *LD38
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A6_BY:SBR42
+TITLE=子程序注释
+BEGIN
+Network 1 
+LD     SM0.0
+=      L60.0
+LD     V350.0
+=      L63.7
+LD     L60.0
+CALL   SBR43, L63.7, VD3100, VD304, VD308, VD312, VW316, VW320, VW324, &VB360, VB330, V340.0, V340.1, V340.2, V340.3, V340.4, V340.5
+Network 2 
+LD     SM0.0
+AB=    VB360, 1
+EU
+S      M4.7, 1
+R      M4.6, 1
+R      M4.4, 1
+R      M4.5, 1
+Network 3 
+LD     SM0.0
+AB=    VB360, 3
+EU
+R      M5.1, 1
+R      M4.6, 1
+R      M4.7, 1
+R      M4.4, 1
+R      M4.5, 1
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A6_BY_BLOCK:SBR43
+TITLE=
+VAR_INPUT
+M保压:BOOL;
+塔内压力:REAL;
+保压低限:REAL;
+保压高限:REAL;
+保压差值:REAL;
+保压时:INT;
+保压分:INT;
+保压秒:INT;
+缓存区:DWORD;
+END_VAR
+VAR_OUTPUT
+保压状态:BYTE;
+保压不佳:BOOL;
+保压正常:BOOL;
+泄压阀:BOOL;
+放空阀:BOOL;
+雾化阀:BOOL;
+进氮阀:BOOL;
+END_VAR
+VAR
+指针:DWORD;
+边沿存储器:BYTE;
+保压前:REAL;
+保压后:REAL;
+当前差值:REAL;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVD   LD23, LD29
+AENO
++D     +1, LD29
+AENO
+MOVB   *LD29, LB33
+Network 2 
+// 程序段注释
+LD     L0.0
+LPS
+AB=    *LD23, 4
+MOVB   1, *LD23
+LPP
+NOT
+MOVB   4, *LD23
+Network 3 
+LDB=   *LD23, 1
+=      L28.5
+MOVB   1, LB27
+AR>=   LD1, LD5
+AR<=   LD1, LD9
+MOVB   2, *LD23
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   LD1, *LD29
+Network 4 
+LDB=   *LD23, 2
+LPS
+A      SM0.5
+LPS
+AN     L33.0
+LPS
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
++I     1, *LD29
+LPP
+AW>=   *LD29, 60
+LPS
+MOVW   0, *LD29
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
++I     1, *LD29
+LPP
+AW>=   *LD29, 60
+MOVW   0, *LD29
+MOVD   LD23, LD29
+AENO
++D     +14, LD29
+AENO
++I     1, *LD29
+LPP
+=      L33.0
+LPP
+LPS
+MOVD   LD23, LD29
+AENO
++D     +14, LD29
+AENO
+LPS
+AW>    *LD29, LW17
+=      L63.6
+LPP
+AW=    *LD29, LW17
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
+LPS
+AW>    *LD29, LW19
+=      L63.7
+LPP
+AW=    *LD29, LW19
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
+AW>=   *LD29, LW21
+O      L63.7
+O      L63.6
+MOVB   3, *LD23
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   LD1, *LD29
+LPP
+MOVB   2, LB27
+Network 5 
+LDB=   *LD23, 3
+LPS
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   *LD29, LD34
+LRD
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   *LD29, LD38
+LRD
+MOVR   LD34, LD42
+-R     LD38, LD42
+LRD
+AR<    LD42, 0.0
+*R     -1.0, LD42
++R     0.0, LD42
+LRD
+AR<=   LD42, LD13
+=      L28.1
+LRD
+AR>    LD42, LD13
+=      L28.0
+LPP
+MOVB   4, LB27
+Network 6 
+LDB=   *LD23, 4
+LPS
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +13, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   0.0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   0.0, *LD29
+LPP
+MOVB   8, LB27
+Network 7 
+LD     SM0.0
+MOVD   LD23, LD29
+AENO
++D     +1, LD29
+AENO
+MOVB   LB33, *LD29
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A7_OTHER:SBR50
+TITLE=子程序注释
+BEGIN
+Network 1 
+// //保压阀反馈报警
+LD     SM0.0
+=      L60.0
+LD     Q0.6
+=      L63.7
+LD     I0.1
+=      L63.6
+LD     I0.2
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V1.5, V1.6
+Network 2 
+// 雾化阀报警反馈
+LD     SM0.0
+=      L60.0
+LD     Q0.7
+=      L63.7
+LD     I0.3
+=      L63.6
+LD     I0.4
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V1.7, V2.0
+Network 3 
+// 比例阀反馈报警
+LD     SM0.0
+=      L60.0
+LD     M5.2
+=      L63.7
+LD     I0.5
+=      L63.6
+LD     I0.6
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V2.3, V2.4
+Network 4 
+// 进氮阀报警反馈
+LD     SM0.0
+=      L60.0
+LD     Q8.0
+=      L63.7
+LD     I0.7
+=      L63.6
+LD     I1.0
+=      L63.5
+LD     SM0.5
+EU
+=      L63.4
+LD     L60.0
+CALL   SBR56, L63.7, L63.6, L63.5, L63.4, 5, 5, V2.1, V2.2
+Network 5 
+Network 6 
+LD     SM0.0
+=      L60.0
+LD     Q0.1
+=      L63.7
+LD     T37
+=      L63.6
+LD     L60.0
+CALL   SBR57, L63.7, L63.6, V20.0
+Network 7 
+LD     SM0.0
+=      L60.0
+LD     Q0.2
+=      L63.7
+LD     T50
+=      L63.6
+LD     L60.0
+CALL   SBR57, L63.7, L63.6, V20.1
+Network 8 
+LDN    T51
+TON    T50, 1
+Network 9 
+LD     T50
+TON    T51, 1
+Network 10 
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A7_ONOFF_BLOCK:SBR51
+TITLE=
+VAR_INPUT
+Start_Btn:BOOL;
+Stop_Btn:BOOL;
+END_VAR
+VAR_IN_OUT
+M:BOOL;
+END_VAR
+VAR_OUTPUT
+Motor_Coil:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// 程序段注释
+LD     L0.0
+O      L0.2
+AN     L0.1
+=      L0.2
+Network 2 
+LD     L0.2
+=      L0.3
+Network 3 
+// 程序段注释
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A7_V_BLOCK:SBR56
+TITLE=
+VAR_INPUT
+阀状态:BOOL;
+阀开信号:BOOL;
+阀关信号:BOOL;
+计时脉冲:BOOL;
+开报警计时:INT;
+关报警计时:INT;
+END_VAR
+VAR_OUTPUT
+阀开报警:BOOL;
+阀关报警:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// 程序段注释
+LD     L0.0
+AN     L0.1
+LPS
+A      L0.3
++I     1, LW1
+LRD
+NOT
+MOVW   0, LW1
+LPP
+AW>=   LW1, 10
+=      L5.0
+Network 2 
+LDN    L0.0
+AN     L0.2
+LPS
+A      L0.3
++I     1, LW3
+LRD
+NOT
+MOVW   0, LW3
+LPP
+AW>=   LW3, 10
+=      L5.1
+END_SUBROUTINE_BLOCK
+SUBROUTINE_BLOCK A7_DH_BLOCK:SBR57
+TITLE=
+VAR_INPUT
+启动:BOOL;
+脉冲_10HZ:BOOL;
+END_VAR
+VAR_OUTPUT
+动画:BOOL;
+END_VAR
+BEGIN
+Network 1 
+// 程序段注释
+LD     L0.0
+A      L0.1
+=      L0.2
+END_SUBROUTINE_BLOCK
+INTERRUPT_BLOCK MBUSM2:INT1
+TITLE=This code is property of Siemens Industry, Inc. 
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_INTERRUPT_BLOCK
+INTERRUPT_BLOCK MBM2:INT2
+TITLE=This code is property of Siemens Industry, Inc. 
+BEGIN
+Network 1 // 此 POU 针对编辑和查看设置了密码保护.
+
+END_INTERRUPT_BLOCK

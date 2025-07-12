@@ -1,0 +1,110 @@
+SUBROUTINE_BLOCK ???????:SBR13
+TITLE=
+BEGIN
+Network 1 
+// ??????????
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M2.2
+ALD
+R      Q0.1, 1
+R      M2.2, 1
+LPP
+LD     M2.2
+OW>=   VW520, 600
+ALD
+=      Q0.1
+=      M2.2
+Network 2 
+// ?????
+LD     SM0.0
+LPS
+AN     M1.0
+R      Q0.0, 1
+R      V5.2, 1
+LPP
+A      M1.0
+A      I0.0
+A      M2.2
+=      Q0.0
+=      V5.2
+Network 3 
+// ??????
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M1.6
+ALD
+R      Q0.2, 1
+R      M1.6, 1
+LPP
+A      M1.6
+=      M1.6
+=      Q0.2
+Network 4 
+// ?????
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.6
+ALD
+R      Q0.6, 1
+R      M4.6, 1
+LPP
+A      M4.6
+=      Q0.6
+=      M4.6
+Network 5 
+// ??????
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.7
+ALD
+R      Q0.7, 1
+R      M4.7, 1
+LPP
+A      M4.7
+=      Q0.7
+=      M4.7
+Network 6 
+// ????§Ø??
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.5
+ALD
+R      Q0.5, 1
+R      M4.5, 1
+LPP
+A      M4.5
+=      Q0.5
+=      M4.5
+Network 7 
+// ?????§Ø??
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M4.4
+ALD
+R      Q0.4, 1
+R      M4.4, 1
+LPP
+A      M4.4
+=      Q0.4
+=      M4.4
+Network 8 
+// ??????
+LD     SM0.0
+LPS
+LD     SM0.1
+ON     M5.1
+ALD
+R      Q8.0, 1
+R      M5.1, 1
+LPP
+A      M5.1
+=      Q8.0
+=      M5.1
+END_SUBROUTINE_BLOCK

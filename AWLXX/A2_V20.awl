@@ -1,0 +1,47 @@
+SUBROUTINE_BLOCK A2_V20:SBR27
+TITLE=子程序注释
+BEGIN
+Network 1 
+// 变频器默认偶校验2     port=1为信号板
+// 变频器的参数设定要与程序里面的写的一样，波特率，奇偶校验等
+// 调用库记得存储器分配，不然编译过不了
+LD     SM0.0
+=      L60.0
+LD     SM0.0
+=      L63.7
+LD     L60.0
+CALL   SBR0, L63.7, 9600, 2, 1, 1000, V40.0, VB4000
+Network 2 
+// 初始化完成开始启动轮询方式，每个轮询done位作为每个轮询的开启
+LD     V40.0
+EU
+=      V41.0
+Network 3 
+LD     SM0.0
+=      L60.0
+LD     V41.0
+O      V42.3
+O      SM0.1
+=      L63.7
+LDN    V41.1
+=      L63.6
+LD     V41.1
+=      L63.5
+LD     V41.2
+=      L63.4
+LD     L60.0
+CALL   SBR28, L63.7, L63.6, L63.5, L63.4, 1, VD4100, VD4128, VW4124, V41.3, VD4108, VD4112, VD4116, VD4120
+Network 4 
+LD     SM0.0
+=      L60.0
+LD     V41.3
+=      L63.7
+LD     V42.4
+=      L63.6
+LD     V42.1
+=      L63.5
+LD     V42.2
+=      L63.4
+LD     L60.0
+CALL   SBR28, L63.7, L63.6, L63.5, L63.4, 2, VD4200, &VD4228, VW4224, V42.3, VD4208, VD4212, VD4216, VD4220
+END_SUBROUTINE_BLOCK

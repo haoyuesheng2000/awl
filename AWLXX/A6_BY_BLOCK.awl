@@ -1,0 +1,195 @@
+SUBROUTINE_BLOCK A6_BY_BLOCK:SBR43
+TITLE=
+VAR_INPUT
+M保压:BOOL;
+塔内压力:REAL;
+保压低限:REAL;
+保压高限:REAL;
+保压差值:REAL;
+保压时:INT;
+保压分:INT;
+保压秒:INT;
+缓存区:DWORD;
+END_VAR
+VAR_OUTPUT
+保压状态:BYTE;
+保压不佳:BOOL;
+保压正常:BOOL;
+泄压阀:BOOL;
+放空阀:BOOL;
+雾化阀:BOOL;
+进氮阀:BOOL;
+END_VAR
+VAR
+指针:DWORD;
+边沿存储器:BYTE;
+保压前:REAL;
+保压后:REAL;
+当前差值:REAL;
+END_VAR
+BEGIN
+Network 1 
+LD     SM0.0
+MOVD   LD23, LD29
+AENO
++D     +1, LD29
+AENO
+MOVB   *LD29, LB33
+Network 2 
+// 程序段注释
+LD     L0.0
+LPS
+AB=    *LD23, 4
+MOVB   1, *LD23
+LPP
+NOT
+MOVB   4, *LD23
+Network 3 
+LDB=   *LD23, 1
+=      L28.5
+MOVB   1, LB27
+AR>=   LD1, LD5
+AR<=   LD1, LD9
+MOVB   2, *LD23
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   LD1, *LD29
+Network 4 
+LDB=   *LD23, 2
+LPS
+A      SM0.5
+LPS
+AN     L33.0
+LPS
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
++I     1, *LD29
+LPP
+AW>=   *LD29, 60
+LPS
+MOVW   0, *LD29
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
++I     1, *LD29
+LPP
+AW>=   *LD29, 60
+MOVW   0, *LD29
+MOVD   LD23, LD29
+AENO
++D     +14, LD29
+AENO
++I     1, *LD29
+LPP
+=      L33.0
+LPP
+LPS
+MOVD   LD23, LD29
+AENO
++D     +14, LD29
+AENO
+LPS
+AW>    *LD29, LW17
+=      L63.6
+LPP
+AW=    *LD29, LW17
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
+LPS
+AW>    *LD29, LW19
+=      L63.7
+LPP
+AW=    *LD29, LW19
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
+AW>=   *LD29, LW21
+O      L63.7
+O      L63.6
+MOVB   3, *LD23
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   LD1, *LD29
+LPP
+MOVB   2, LB27
+Network 5 
+LDB=   *LD23, 3
+LPS
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   *LD29, LD34
+LRD
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   *LD29, LD38
+LRD
+MOVR   LD34, LD42
+-R     LD38, LD42
+LRD
+AR<    LD42, 0.0
+*R     -1.0, LD42
++R     0.0, LD42
+LRD
+AR<=   LD42, LD13
+=      L28.1
+LRD
+AR>    LD42, LD13
+=      L28.0
+LPP
+MOVB   4, LB27
+Network 6 
+LDB=   *LD23, 4
+LPS
+MOVD   LD23, LD29
+AENO
++D     +10, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +12, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +13, LD29
+AENO
+MOVW   0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +2, LD29
+AENO
+MOVR   0.0, *LD29
+LRD
+MOVD   LD23, LD29
+AENO
++D     +6, LD29
+AENO
+MOVR   0.0, *LD29
+LPP
+MOVB   8, LB27
+Network 7 
+LD     SM0.0
+MOVD   LD23, LD29
+AENO
++D     +1, LD29
+AENO
+MOVB   LB33, *LD29
+END_SUBROUTINE_BLOCK
